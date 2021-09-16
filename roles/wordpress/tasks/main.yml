@@ -1,0 +1,24 @@
+---
+
+- name: download build
+  get_url:
+    url="{{ wpbuild }}"
+    dest="{{ webdir }}"
+  timeout: 300
+
+- name: unarchive build
+  unarchive: src={{webdir}}/{{tarname}} dest={{webdir}} copy=no
+
+- name: set owner
+  file:
+    path: "{{ wpdir }}"
+    state: directory
+    recurse: yes
+    owner: "{{ nginx_user }}"
+    group: "{{ nginx_user }}"
+    mode: 0o750
+
+- name: modify config
+  template:
+    src: wp-config.j2
+    dest: "{{wpdir}}/wp-config.php"

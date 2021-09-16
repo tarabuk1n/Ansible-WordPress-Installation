@@ -1,0 +1,7 @@
+---
+
+- name: restart_mysql
+  become: yes
+  service:
+    name: mariadb
+    state: restarted

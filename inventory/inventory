@@ -1,0 +1,2 @@
+[WP]
+Server ansible_connection=ssh ansible_ssh_host={{chost}} ansible_ssh_user={{cname}} ansible_ssh_pass={{cpass}} ansible_become_user={{cbecome}}

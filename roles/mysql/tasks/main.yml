@@ -1,0 +1,43 @@
+---
+
+- name: create database
+  mysql_db:
+    login_unix_socket: "{{ sqlsock }}"
+    name: "{{ dbname }}"
+    state: present
+
+- name: create user
+  mysql_user:
+    login_unix_socket: "{{ sqlsock }}"
+    name: "{{ uname }}"
+    password: "{{ upass }}"
+    state: present
+    priv: "{{ dbname }}.*:ALL"
+
+- name: update port
+  template:
+    dest: "/etc/mysql/conf.d/mysql.cnf"
+    src: "mysql.cnf.j2"
+
+- name: backup dir
+  file:
+    path: "{{ backupdir }}"
+    state: directory
+    recurse: yes
+    owner: "{{ cname }}"
+    group: "{{ cname }}"
+    mode: 0o750
+
+- name: backup script
+  template:
+    src: "dump.sh.j2"
+    dest: "{{backupdir}}/{{backupscript}}"
+    mode: a+x
+
+- name: backup cron
+  cron:
+    name: "backup mysql"
+    minute: "*/10"
+    job: "{{backupdir}}/{{backupscript}}"
+  notify:
+    - restart_mysql

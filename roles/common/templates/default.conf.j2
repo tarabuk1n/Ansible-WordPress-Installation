@@ -1,0 +1,30 @@
+server {
+	listen 80;
+	server_name {{chost}};
+	return 301 https://$host$request_uri;
+}
+
+server {
+	listen 443 ssl;	
+	server_name {{chost}};
+	root {{wpdir}};
+	index index.php
+	client_max_body_size 100M;
+	autoindex off;
+	ssl_certificate /home/{{cname}}/{{hostname}}_cert.pem;
+    ssl_certificate_key /home/{{cname}}/{{hostname}}_key.pem;
+	
+	location / {
+        try_files $uri $uri/ /index.php$args;
+    }
+	
+	location ~ \.php$ {
+        include snippets/fastcgi-php.conf;
+        fastcgi_pass unix:{{phpsock}};
+    }
+
+	location ~* \.(js|css|png|jpg|jpeg|gif|ico)$ {
+                expires max;
+                log_not_found off;
+    }
+}

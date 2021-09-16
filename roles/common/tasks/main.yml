@@ -1,0 +1,64 @@
+---
+
+- name: update_apt
+  apt:
+    update_cache: yes
+
+- name: upgrade_apt
+  apt:
+    upgrade: dist
+
+- name: install_packages
+  apt:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - nginx
+    - mariadb-common
+    - mariadb-server
+    - php
+    - php-fpm
+    - php-curl 
+    - php-gd 
+    - php-intl 
+    - php-mysql
+    - php-mbstring 
+    - php-soap 
+    - php-xml 
+    - php-xmlrpc 
+    - php-zip
+    - python-pymysql
+    - python3-pymysql
+
+- name: Setup NGINX
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+  loop:
+    - {'src': "default.conf.j2", 'dest': "/etc/nginx/conf.d/default.conf"}   
+    - {'src': "nginx.conf.j2", 'dest': "/etc/nginx/nginx.conf"}     
+
+- name: SSL PrivKey
+  openssl_privatekey:
+    path: "/home/{{cname}}/{{hostname}}_key.pem"
+    size: "{{ ksize }}"
+    type: "{{ ktype }}"
+    backup: yes
+    
+- name: SSL Request
+  openssl_csr:
+    path: "/home/{{cname}}/{{hostname}}.csr"
+    privatekey_path: "/home/{{cname}}/{{hostname}}_key.pem"
+    country_name: "{{ country }}"
+    organization_name: "{{ orgname }}"
+    email_address: "{{ email }}"
+    common_name: "{{ hostname }}"
+
+- name: SSL Gen
+  openssl_certificate:
+    path: "/home/{{cname}}/{{hostname}}_cert.pem"
+    privatekey_path: "/home/{{cname}}/{{hostname}}_key.pem"
+    csr_path: "/home/{{cname}}/{{hostname}}.csr"
+    provider: selfsigned
+  notify: 
+   - restart-nginx
