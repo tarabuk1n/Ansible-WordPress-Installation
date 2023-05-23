@@ -1,7 +1,7 @@
 # Ansible Wordpress Installation
 ![Ansible Wordpress Installation](https://daddyprogrammer.org/wp-content/uploads/2019/11/ansible-wordpress-logo.png)
 
-Automating WordPress Installation Through Ansible:
+Automating WordPress Installation using Ansible:
 
 - Creating a MySQL database
 - Configuring Nginx
